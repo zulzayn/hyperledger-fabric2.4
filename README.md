@@ -169,7 +169,7 @@ tmux new -s fabric
 tmux add -t fabric
 
 # show all logs
-docker-compose -f docker/docker-compose-test-net.yaml logs -f -t
+docker-compose -f compose/compose-test-net.yaml logs -f -t
 
 # open a new panel
 CTRL + b (release pressed keys) + "
