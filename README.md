@@ -175,7 +175,7 @@ docker-compose -f compose/compose-test-net.yaml logs -f -t
 CTRL + b (release pressed keys) + "
 
 # jump between panels
-CTRL + b + q 1
+CTRL + b + ;
 
 # detach from session
 CTRL + b + d
