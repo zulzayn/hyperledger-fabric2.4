@@ -75,7 +75,7 @@ Hyperledger Fabric uses the Go Programming Language for many of its components. 
 
 ```bash 
 # download and extract go
-# latest version 04.10.20 1.19.3
+# latest version 2022-08-02 1.19.3
 wget -c https://dl.google.com/go/go1.19.3.linux-amd64.tar.gz -O - | tar -xz -C /usr/local
 
 # add the go binary to the path
