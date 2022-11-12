@@ -1,71 +1,287 @@
-[//]: # (SPDX-License-Identifier: CC-BY-4.0)
+# Setup
+These steps describes a HLF 2.4.x installation on a DigitalOcean Droplet.
 
-# Hyperledger Fabric Samples
+## Droplet 
+Digital Ocean Droplet, 1 CPU, 2 GB, 50 GB SSD  
+OS, Ubuntu 20.04 (LTS) x64
 
-[![Build Status](https://dev.azure.com/Hyperledger/Fabric-Samples/_apis/build/status/Fabric-Samples?branchName=main)](https://dev.azure.com/Hyperledger/Fabric-Samples/_build/latest?definitionId=28&branchName=main)
+## Access via ssh
+ssh root@ssh root@xx
 
-You can use Fabric samples to get started working with Hyperledger Fabric, explore important Fabric features, and learn how to build applications that can interact with blockchain networks using the Fabric SDKs. To learn more about Hyperledger Fabric, visit the [Fabric documentation](https://hyperledger-fabric.readthedocs.io/en/latest).
+## Perparations
+The following steps are required to prepare the Droplet.
+```bash
+# update the OS
+apt update && apt upgrade
 
-## Getting started with the Fabric samples
+# install some useful helpers
+apt install tree jq gcc make
 
-To use the Fabric samples, you need to download the Fabric Docker images and the Fabric CLI tools. First, make sure that you have installed all of the [Fabric prerequisites](https://hyperledger-fabric.readthedocs.io/en/latest/prereqs.html). You can then follow the instructions to [Install the Fabric Samples, Binaries, and Docker Images](https://hyperledger-fabric.readthedocs.io/en/latest/install.html) in the Fabric documentation. In addition to downloading the Fabric images and tool binaries, the Fabric samples will also be cloned to your local machine.
+# it's always good the use the right time
+# so setup the correct timezone
+timedatectl set-timezone Asia/Kuala_Lumpur
 
-## Test network
+# check the time
+date
+```
 
-The [Fabric test network](test-network) in the samples repository provides a Docker Compose based test network with two
-Organization peers and an ordering service node. You can use it on your local machine to run the samples listed below.
-You can also use it to deploy and test your own Fabric chaincodes and applications. To get started, see
-the [test network tutorial](https://hyperledger-fabric.readthedocs.io/en/latest/test_network.html).
+## Install Docker
+The following steps are required to install docker on the Droplet. Reference: https://docs.docker.com/engine/install/ubuntu/
 
-The [Kubernetes Test Network](test-network-k8s) sample builds upon the Compose network, constructing a Fabric 
-network with peer, orderer, and CA infrastructure nodes running on Kubernetes.  In addition to providing a sample 
-Kubernetes guide, the Kube test network can be used as a platform to author and debug _cloud ready_ Fabric Client 
-applications on a development or CI workstation. 
+```bash
+# set up the repository
+sudo apt install \
+  apt-transport-https \
+  ca-certificates \
+  curl \
+  gnupg-agent \
+  software-properties-common
 
-
-
-## Asset transfer samples and tutorials
-
-The asset transfer series provides a series of sample smart contracts and applications to demonstrate how to store and transfer assets using Hyperledger Fabric.
-Each sample and associated tutorial in the series demonstrates a different core capability in Hyperledger Fabric. The **Basic** sample provides an introduction on how
-to write smart contracts and how to interact with a Fabric network using the Fabric SDKs. The **Ledger queries**, **Private data**, and **State-based endorsement**
-samples demonstrate these additional capabilities. Finally, the **Secured agreement** sample demonstrates how to bring all the capabilities together to securely
-transfer an asset in a more realistic transfer scenario.
-
-|  **Smart Contract** | **Description** | **Tutorial** | **Smart contract languages** | **Application languages** |
-| -----------|------------------------------|----------|---------|---------|
-| [Basic](asset-transfer-basic) | The Basic sample smart contract that allows you to create and transfer an asset by putting data on the ledger and retrieving it. This sample is recommended for new Fabric users. | [Writing your first application](https://hyperledger-fabric.readthedocs.io/en/latest/write_first_app.html) | Go, JavaScript, TypeScript, Java | Go, JavaScript, TypeScript, Java |
-| [Ledger queries](asset-transfer-ledger-queries) | The ledger queries sample demonstrates range queries and transaction updates using range queries (applicable for both LevelDB and CouchDB state databases), and how to deploy an index with your chaincode to support JSON queries (applicable for CouchDB state database only). | [Using CouchDB](https://hyperledger-fabric.readthedocs.io/en/latest/couchdb_tutorial.html) | Go, JavaScript | Java, JavaScript |
-| [Private data](asset-transfer-private-data) | This sample demonstrates the use of private data collections, how to manage private data collections with the chaincode lifecycle, and how the private data hash can be used to verify private data on the ledger. It also demonstrates how to control asset updates and transfers using client-based ownership and access control. | [Using Private Data](https://hyperledger-fabric.readthedocs.io/en/latest/private_data_tutorial.html) | Go, Java | JavaScript |
-| [State-Based Endorsement](asset-transfer-sbe) | This sample demonstrates how to override the chaincode-level endorsement policy to set endorsement policies at the key-level (data/asset level). | [Using State-based endorsement](https://github.com/hyperledger/fabric-samples/tree/main/asset-transfer-sbe) | Java, TypeScript | JavaScript |
-| [Secured agreement](asset-transfer-secured-agreement) | Smart contract that uses implicit private data collections, state-based endorsement, and organization-based ownership and access control to keep data private and securely transfer an asset with the consent of both the current owner and buyer. | [Secured asset transfer](https://hyperledger-fabric.readthedocs.io/en/latest/secured_asset_transfer/secured_private_asset_transfer_tutorial.html)  | Go | JavaScript |
-| [Events](asset-transfer-events) | The events sample demonstrates how smart contracts can emit events that are read by the applications interacting with the network. | [README](asset-transfer-events/README.md)  | JavaScript, Java | JavaScript |
-| [Attribute-based access control](asset-transfer-abac) | Demonstrates the use of attribute and identity based access control using a simple asset transfer scenario | [README](asset-transfer-abac/README.md)  | Go | None |
+# add Docker’s official GPG key
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 
 
+# set up the stable repository
+sudo add-apt-repository \
+  "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) \
+  stable"
 
-## Additional samples
+# install docker engine
+apt update
+apt install docker-ce docker-ce-cli containerd.io
 
-Additional samples demonstrate various Fabric use cases and application patterns.
+# check the docker version
+docker --version
+```
 
-|  **Sample** | **Description** | **Documentation** |
-| -------------|------------------------------|------------------|
-| [Commercial paper](commercial-paper) | Explore a use case and detailed application development tutorial in which two organizations use a blockchain network to trade commercial paper. | [Commercial paper tutorial](https://hyperledger-fabric.readthedocs.io/en/latest/tutorial/commercial_paper.html) |
-| [Off chain data](off_chain_data) | Learn how to use the Peer channel-based event services to build an off-chain database for reporting and analytics. | [Peer channel-based event services](https://hyperledger-fabric.readthedocs.io/en/latest/peer_event_services.html) |
-| [Token ERC-20](token-erc-20) | Smart contract demonstrating how to create and transfer fungible tokens using an account-based model. | [README](token-erc-20/README.md) |
-| [Token UTXO](token-utxo) | Smart contract demonstrating how to create and transfer fungible tokens using a UTXO (unspent transaction output) model. | [README](token-utxo/README.md) |
-| [Token ERC-1155](token-erc-1155) | Smart contract demonstrating how to create and transfer multiple tokens (both fungible and non-fungible) using an account based model. | [README](token-erc-1155/README.md) |
-| [Token ERC-721](token-erc-721) | Smart contract demonstrating how to create and transfer non-fungible tokens using an account-based model. | [README](token-erc-721/README.md) |
-| [High throughput](high-throughput) | Learn how you can design your smart contract to avoid transaction collisions in high volume environments. | [README](high-throughput/README.md) |
-| [Simple Auction](auction-simple) | Run an auction where bids are kept private until the auction is closed, after which users can reveal their bid. | [README](auction-simple/README.md) |
-| [Dutch Auction](auction-dutch) | Run an auction in which multiple items of the same type can be sold to more than one buyer. This example also includes the ability to add an auditor organization. | [README](auction-dutch/README.md) |
-| [Chaincode](chaincode) | A set of other sample smart contracts, many of which were used in tutorials prior to the asset transfer sample series. | |
-| [Interest rate swaps](interest_rate_swaps) | **Deprecated in favor of state based endorsement asset transfer sample** | |
-| [Fabcar](fabcar) | **Deprecated in favor of basic asset transfer sample** |  |
+## Install Docker-Compose
 
-## License <a name="license"></a>
+Reference https://docs.docker.com/compose/install/
 
-Hyperledger Project source code files are made available under the Apache
-License, Version 2.0 (Apache-2.0), located in the [LICENSE](LICENSE) file.
-Hyperledger Project documentation files are made available under the Creative
-Commons Attribution 4.0 International License (CC-BY-4.0), available at http://creativecommons.org/licenses/by/4.0/.
+```bash
+# install docker-compose
+curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+# apply executable permissions to the binary
+sudo chmod +x /usr/local/bin/docker-compose
+
+# check the docker-compose version
+docker-compose --version
+```
+
+## Install Go Programming Language
+Hyperledger Fabric uses the Go Programming Language for many of its components. Go version 1.19.x is required.
+
+```bash 
+# download and extract go
+# latest version 04.10.20 1.19.3
+wget -c https://dl.google.com/go/go1.19.3.linux-amd64.tar.gz -O - | tar -xz -C /usr/local
+
+# add the go binary to the path
+echo 'export PATH="$PATH:/usr/local/go/bin:/root/fabric/fabric-samples/bin"' >> $HOME/.profile
+
+# point the GOPATH env var to the base fabric workspace folder
+echo 'export GOPATH="$HOME/fabric"' >> $HOME/.profile
+
+# reload the profile
+source $HOME/.profile
+
+# check the go version
+go version
+
+# check the vars
+printenv | grep PATH
+```
+
+## Install node.js
+
+```bash
+# add PPA from NodeSource
+curl -sL https://deb.nodesource.com/setup_18.x -o nodesource_setup.sh
+
+# call the install script
+. nodesource_setup.sh
+
+# install node.js
+apt-get install -y nodejs
+
+# check the version
+node -v
+```
+
+## Install Samples, Binaries and Docker Images
+
+```bash
+mkdir fabric
+cd fabric
+
+# install the latest production release from the 1.4.x branch
+# curl -sSL http://bit.ly/2ysbOFE | bash -s -- <fabric_version> <fabric-ca_version> <thirdparty_version>
+
+# curl -sSL http://bit.ly/2ysbOFE | bash -s -- 1.4.6 1.4.6 0.4.18
+
+# latest production ready release, omit all version identifiers
+curl -sSL https://bit.ly/2ysbOFE | bash -s
+
+# we use 2.2 in our examples
+# curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.1 1.4.9
+
+# check downloaded images
+docker images
+
+# check the bin cmd
+peer version
+
+```
+
+## Try the installation
+The fabric-samples provisions a sample Hyperledger Fabric test-network consisting of two organizations, each maintaining one peer nodes. It also will deploy a single RAFT ordering service by default. 
+
+To test your installationen we can start interacting with the network.
+
+```bash
+# switch to the base folder
+cd fabric-samples/test-network
+
+# print some help
+./network.sh --help
+
+# bring up the network
+./network.sh up createChannel -c channel1
+
+# install default CC - asset-transfer (basic) chaincode
+./network.sh deployCC -c channel1
+
+# show if some containers are running
+docker ps
+docker-compose -f compose/compose-test-net.yaml ps
+```
+
+## Interacting with the network
+
+tmux control
+```bash
+# start a new tmux session
+tmux new -s fabric
+
+# attach to existing session
+tmux add -t fabric
+
+# show all logs
+docker-compose -f docker/docker-compose-test-net.yaml logs -f -t
+
+# open a new panel
+CTRL + b (release pressed keys) + "
+
+# jump between panels
+CTRL + b + q 1
+
+# detach from session
+CTRL + b + d
+
+```
+
+### Environment variables for peer Org1
+
+```bash
+# create an env file
+vi org1.sh
+
+export FABRIC_CFG_PATH=$HOME/fabric/fabric-samples/config/
+export CHANNEL_NAME="channel1"
+
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="Org1MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_ADDRESS=localhost:7051
+
+# execute the env file
+source ./org1.sh
+
+# check env vars
+printenv | grep CORE
+```
+
+#### Initialize the leder (sample data)
+Run the following command to initialize the ledger with assets:
+```bash
+
+# for explanation
+peer chaincode invoke 
+  -o localhost:7050 
+  --ordererTLSHostnameOverride orderer.example.com 
+  --tls 
+  --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem 
+  -C $CHANNEL_NAME 
+  -n basic 
+  --peerAddresses localhost:7051 
+  --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt 
+  --peerAddresses localhost:9051 
+  --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt 
+  -c '{"function":"InitLedger","Args":[]}'
+
+
+# for copy and paste
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C $CHANNEL_NAME -n basic --peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{"function":"InitLedger","Args":[]}'
+```
+
+#### Query the leder
+
+```bash
+# Read the last state of all assets
+peer chaincode query -C $CHANNEL_NAME -n basic -c '{"Args":["GetAllAssets"]}' | jq .
+
+# Read an asset 
+peer chaincode query -C $CHANNEL_NAME -n basic -c '{"Args":["ReadAsset","asset1"]}' | jq .
+```
+
+#### Create an asset
+```bash
+
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C $CHANNEL_NAME -n basic --peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{"function":"CreateAsset","Args":["asset7","green","10","Roland","500"]}'
+```
+
+#### Update an asset
+```bash
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C $CHANNEL_NAME -n basic --peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{"function":"UpdateAsset","Args":["asset7","green","10","Roland","600"]}'
+```
+
+#### Transfer an asset
+```bash
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C $CHANNEL_NAME -n basic --peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{"function":"TransferAsset","Args":["asset7","Joana"]}'
+```
+
+#### Delete an asset
+```bash
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C $CHANNEL_NAME -n basic --peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{"function":"DeleteAsset","Args":["asset1"]}'
+```
+
+### Switch to peer Org2
+We can switch to work with peer Org2 peer0.org2.example.com with changeing the following evironment variables. 
+```bash 
+
+# create an env file
+vi org2.sh
+
+# Environment variables for Org2
+export FABRIC_CFG_PATH=$HOME/fabric/fabric-samples/config/
+export CHANNEL_NAME="channel1"
+
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="Org2MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
+export CORE_PEER_ADDRESS=localhost:9051
+
+# execute the env file
+source ./org2.sh
+```
+
+## Bring down the network
+```bash
+./network.sh down
+```
+
+[Index](../README.md)
