@@ -180,6 +180,10 @@ CTRL + b + ;
 # detach from session
 CTRL + b + d
 
+# Additional Tmux Command
+tmux ls
+tmux attach -d -t <session id>
+
 ```
 
 ### Environment variables for peer Org1
